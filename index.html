@@ -1,0 +1,96 @@
+import random
+import time
+
+# --- 遊戲設定 ---
+# 水果符號與對應的中獎倍數（三個相同時的賠率）
+FRUITS = {
+    "🍒": 3,   # 櫻桃：3倍
+    "🍊": 5,   # 橘子：5倍
+    "🍋": 8,   # 檸檬：8倍
+    "🍇": 15,  # 葡萄：15倍
+    "🔔": 30,  # 鈴鐺：30倍
+    "7️⃣": 100  # 大獎 7：100倍
+}
+
+def spin_row():
+    """模擬轉動一次滾輪（三個符號）"""
+    symbols = list(FRUITS.keys())
+    # 這裡可以調整機率，目前為隨機平均分佈
+    return [random.choice(symbols) for _ in range(3)]
+
+def print_spin(row):
+    """漂亮地印出轉動效果"""
+    print("\n   [ 轉動中... ]")
+    time.sleep(0.5)
+    # 模擬滾輪一格一格停下來的效果
+    print(f" ｜ {row[0]} ｜ ", end="", flush=True)
+    time.sleep(0.5)
+    print(f"{row[1]} ｜ ", end="", flush=True)
+    time.sleep(0.5)
+    print(f"{row[2]} ｜")
+    time.sleep(0.3)
+
+def main():
+    balance = 1000  # 初始本金
+    print("=" * 30)
+    print(" 🎰 歡迎來到 Python 水果盤遊戲！ 🎰")
+    print("=" * 30)
+    print(f" 您的初始本金為: ${balance}")
+    print(" 賠率表：🍒x3=3倍 | 🍊x3=5倍 | 🍋x3=8倍 | 🍇x3=15倍 | 🔔x3=30倍 | 7️⃣x3=100倍")
+    print("=" * 30)
+
+    while balance > 0:
+        print(f"\n當前餘額: ${balance}")
+        bet_input = input("請輸入下注金額 (或輸入 'q' 離開遊戲): ").strip()
+
+        if bet_input.lower() == 'q':
+            break
+
+        # 檢查輸入是否為數字
+        if not bet_input.isdigit():
+            print("❌ 請輸入有效的數字！")
+            continue
+
+        bet = int(bet_input)
+
+        # 檢查下注金額是否合法
+        if bet <= 0:
+            print("❌ 下注金額必須大於 0！")
+            continue
+        if bet > balance:
+            print("❌ 餘額不足，請重新輸入！")
+            continue
+
+        # 扣除下注本金
+        balance -= bet
+        
+        # 開始轉動
+        row = spin_row()
+        print_spin(row)
+
+        # 判斷中獎邏輯
+        # 情況 1：三個都一樣 (大獎)
+        if row[0] == row[1] == row[2]:
+            win_fruit = row[0]
+            multiplier = FRUITS[win_fruit]
+            win_amount = bet * multiplier
+            balance += win_amount
+            print(f"🎉 恭喜中獎！三個 {win_fruit}！獲得 {multiplier} 倍獎金：${win_amount} 🎉")
+        
+        # 情況 2：任意兩個一樣 (小獎，可自行決定要不要加，這裡設定退回本金或2倍)
+        elif row[0] == row[1] or row[1] == row[2] or row[0] == row[2]:
+            win_amount = int(bet * 0.5)  # 兩個一樣退回一半本金，你可以改成別的邏輯
+            balance += win_amount
+            print(f"✨ 差一點點！兩個符號相同，退回部分本金：${win_amount}")
+        
+        # 情況 3：沒中獎
+        else:
+            print("😭 很遺憾，這次沒有中獎，再接再厲！")
+
+    print("\n=" * 30)
+    print(f" 遊戲結束！您最終帶走的金額為: ${balance}")
+    print(" 感謝您的遊玩！ 👋")
+    print("=" * 30)
+
+if __name__ == "__main__":
+    main()
